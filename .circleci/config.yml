@@ -16,11 +16,12 @@ jobs:
       - image: segment/golang
     steps:
       - checkout
-      - run: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
+      - run: "curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh"
 
 workflows:
   version: 2
   run:
     jobs:
       - build
-      - snyk
+      - snyk:
+          context: snyk
