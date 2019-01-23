@@ -2,8 +2,25 @@ version: 2
 jobs:
   build:
     working_directory: /go/src/github.com/segmentio/netsec
+    resource_class: small
     docker:
       - image: circleci/golang
     steps:
       - checkout
       - run: go test -v -race ./...
+
+  snyk:
+    working_directory: /go/src/github.com/segmentio/netsec
+    resource_class: small
+    docker:
+      - image: segment/golang
+    steps:
+      - checkout
+      - run: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
+
+workflows:
+  version: 2
+  run:
+    jobs:
+      - build
+      - snyk
