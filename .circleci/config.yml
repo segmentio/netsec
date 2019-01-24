@@ -23,5 +23,6 @@ workflows:
   run:
     jobs:
       - build
-      - snyk:
-          context: snyk
+# TODO: enable if we had dependencies to the package.
+#      - snyk:
+#          context: snyk
