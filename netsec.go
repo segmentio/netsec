@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-// CIR is like net.ParseDIR but panics if the input is invalid. This function
+// CIDR is like net.ParseCIDR but panics if the input is invalid. This function
 // is useful to initialize lists of CIDRs without having to check errors.
 func CIDR(cidr string) *net.IPNet {
 	_, ipnet, err := net.ParseCIDR(cidr)
