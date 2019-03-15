@@ -26,11 +26,16 @@ func TestRestrictedDial(t *testing.T) {
 	}
 
 	for _, addr := range pass {
-		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialPass(addr))
+		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialPass(context.Background(), addr))
 	}
 
 	for _, addr := range fail {
-		t.Run("trying to connect to "+addr+" must fail", testRestrictedDialFail(addr))
+		t.Run("trying to connect to "+addr+" must fail", testRestrictedDialFail(context.Background(), addr))
+	}
+
+	for _, addr := range fail {
+		ctx := context.WithValue(context.Background(), BypassRestrictionContextKey{}, true)
+		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialFail(ctx, addr))
 	}
 }
 
@@ -39,9 +44,9 @@ var restrictedDial = RestrictedDial(
 	Blacklist(PrivateIPNetworks),
 )
 
-func testRestrictedDialPass(address string) func(*testing.T) {
+func testRestrictedDialPass(ctx context.Context, address string) func(*testing.T) {
 	return func(t *testing.T) {
-		c, err := restrictedDial(context.Background(), "tcp", address)
+		c, err := restrictedDial(ctx, "tcp", address)
 		if err != nil {
 			t.Error(err)
 		} else {
@@ -50,9 +55,9 @@ func testRestrictedDialPass(address string) func(*testing.T) {
 	}
 }
 
-func testRestrictedDialFail(address string) func(*testing.T) {
+func testRestrictedDialFail(ctx context.Context, address string) func(*testing.T) {
 	return func(t *testing.T) {
-		c, err := restrictedDial(context.Background(), "tcp", address)
+		c, err := restrictedDial(ctx, "tcp", address)
 
 		switch e := err.(type) {
 		case nil:
