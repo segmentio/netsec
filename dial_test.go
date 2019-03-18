@@ -34,7 +34,7 @@ func TestRestrictedDial(t *testing.T) {
 	}
 
 	for _, addr := range fail {
-		ctx := context.WithValue(context.Background(), BypassRestrictionContextKey{}, true)
+		ctx := WithRestrictedNetworkBypass(context.Background())
 		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialFail(ctx, addr))
 	}
 }

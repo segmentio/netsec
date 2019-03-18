@@ -5,9 +5,6 @@ import (
 	"net"
 )
 
-// BypassRestrictionContextKey is the key used to bypass a restricted network.
-type BypassRestrictionContextKey struct{}
-
 // DialFunc is an alias for the signature of the functions used to establish
 // network connections.
 type DialFunc = func(context.Context, string, string) (net.Conn, error)
@@ -61,9 +58,8 @@ func (d *RestrictedDialer) Dial(ctx context.Context, network, address string) (n
 		ipAddr = &addrs[0]
 	}
 
-	bypass := ctx.Value(BypassRestrictionContextKey{})
 	for _, check := range d.Checks {
-		if err := check.Check(ipAddr); err != nil && bypass == nil {
+		if err := check.Check(ipAddr); err != nil && HasRestrictedNetworkBypass(ctx) {
 			return nil, &net.OpError{
 				Op:   "dial",
 				Net:  network,
