@@ -59,7 +59,7 @@ func (d *RestrictedDialer) Dial(ctx context.Context, network, address string) (n
 	}
 
 	for _, check := range d.Checks {
-		if err := check.Check(ipAddr); err != nil && HasRestrictedNetworkBypass(ctx) {
+		if err := check.Check(ipAddr); err != nil && !HasRestrictedNetworkBypass(ctx) {
 			return nil, &net.OpError{
 				Op:   "dial",
 				Net:  network,
