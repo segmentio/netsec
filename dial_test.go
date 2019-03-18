@@ -3,6 +3,8 @@ package netsec
 import (
 	"context"
 	"net"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -33,10 +35,13 @@ func TestRestrictedDial(t *testing.T) {
 		t.Run("trying to connect to "+addr+" must fail", testRestrictedDialFail(context.Background(), addr))
 	}
 
-	for _, addr := range fail {
+	t.Run("trying to connect to local address with bypass must pass", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		addr := srv.URL[6:] // srv.URL includes the http:// prefix, strip it!
+
 		ctx := WithRestrictedNetworkBypass(context.Background())
-		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialFail(ctx, addr))
-	}
+		testRestrictedDialPass(ctx, addr)
+	})
 }
 
 var restrictedDial = RestrictedDial(
