@@ -3,6 +3,8 @@ package netsec
 import (
 	"context"
 	"net"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -26,12 +28,20 @@ func TestRestrictedDial(t *testing.T) {
 	}
 
 	for _, addr := range pass {
-		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialPass(addr))
+		t.Run("trying to connect to "+addr+" must pass", testRestrictedDialPass(context.Background(), addr))
 	}
 
 	for _, addr := range fail {
-		t.Run("trying to connect to "+addr+" must fail", testRestrictedDialFail(addr))
+		t.Run("trying to connect to "+addr+" must fail", testRestrictedDialFail(context.Background(), addr))
 	}
+
+	t.Run("trying to connect to local address with bypass must pass", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		addr := srv.URL[6:] // srv.URL includes the http:// prefix, strip it!
+
+		ctx := WithRestrictedNetworkBypass(context.Background())
+		testRestrictedDialPass(ctx, addr)
+	})
 }
 
 var restrictedDial = RestrictedDial(
@@ -39,9 +49,9 @@ var restrictedDial = RestrictedDial(
 	Blacklist(PrivateIPNetworks),
 )
 
-func testRestrictedDialPass(address string) func(*testing.T) {
+func testRestrictedDialPass(ctx context.Context, address string) func(*testing.T) {
 	return func(t *testing.T) {
-		c, err := restrictedDial(context.Background(), "tcp", address)
+		c, err := restrictedDial(ctx, "tcp", address)
 		if err != nil {
 			t.Error(err)
 		} else {
@@ -50,9 +60,9 @@ func testRestrictedDialPass(address string) func(*testing.T) {
 	}
 }
 
-func testRestrictedDialFail(address string) func(*testing.T) {
+func testRestrictedDialFail(ctx context.Context, address string) func(*testing.T) {
 	return func(t *testing.T) {
-		c, err := restrictedDial(context.Background(), "tcp", address)
+		c, err := restrictedDial(ctx, "tcp", address)
 
 		switch e := err.(type) {
 		case nil:
