@@ -2,16 +2,20 @@ package netsec
 
 import (
 	"context"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestRestrictedDial(t *testing.T) {
 	pass := [...]string{
 		"segment.com:443",
+		"[2600:1f16:59e:b200:9824:7fb2:162:d476]:443",
 	}
 
 	fail := [...]string{
@@ -44,8 +48,41 @@ func TestRestrictedDial(t *testing.T) {
 	})
 }
 
+type mockConn struct {
+	laddr net.Addr
+	raddr net.Addr
+}
+
+func (c mockConn) LocalAddr() net.Addr              { return c.laddr }
+func (c mockConn) RemoteAddr() net.Addr             { return c.raddr }
+func (c mockConn) Read(b []byte) (int, error)       { return 0, io.EOF }
+func (c mockConn) Write(b []byte) (int, error)      { return len(b), nil }
+func (c mockConn) Close() error                     { return nil }
+func (c mockConn) SetDeadline(time.Time) error      { return nil }
+func (c mockConn) SetReadDeadline(time.Time) error  { return nil }
+func (c mockConn) SetWriteDeadline(time.Time) error { return nil }
+
 var restrictedDial = RestrictedDial(
-	(&net.Dialer{}).DialContext,
+	func(ctx context.Context, network, address string) (net.Conn, error) {
+		host, port, err := net.SplitHostPort(address)
+		if err != nil {
+			return nil, err
+		}
+		p, err := strconv.Atoi(port)
+		if err != nil {
+			return nil, err
+
+		}
+		laddr := &net.TCPAddr{
+			IP:   net.ParseIP("127.0.0.1"),
+			Port: 12345,
+		}
+		raddr := &net.TCPAddr{
+			IP:   net.ParseIP(host),
+			Port: p,
+		}
+		return mockConn{laddr: laddr, raddr: raddr}, nil
+	},
 	Blacklist(PrivateIPNetworks),
 )
 
