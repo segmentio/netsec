@@ -15,6 +15,7 @@ import (
 func TestRestrictedDial(t *testing.T) {
 	pass := [...]string{
 		"segment.com:443",
+		"[2600:1901:0:94b6::]:443",
 		"[2600:1f16:59e:b200:9824:7fb2:162:d476]:443",
 	}
 
