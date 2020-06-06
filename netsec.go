@@ -58,12 +58,12 @@ type AddrCheck interface {
 	Check(net.Addr) error
 }
 
-// Whitelist is an implementation of the AddrCheck interface which verifies that
+// Allowlist is an implementation of the AddrCheck interface which verifies that
 // addresses belong to one of the IP networks it contains.
-type Whitelist []*net.IPNet
+type Allowlist []*net.IPNet
 
 // Check satisfies the AddrCheck interface.
-func (ipNetList Whitelist) Check(addr net.Addr) error {
+func (ipNetList Allowlist) Check(addr net.Addr) error {
 	ip := IPAddressOf(addr)
 
 	for _, ipNet := range ipNetList {
@@ -72,20 +72,20 @@ func (ipNetList Whitelist) Check(addr net.Addr) error {
 		}
 	}
 
-	return fmt.Errorf("unauthorized attempt to connect to an address which isn't in any whitelisted networks (%s)", addr)
+	return fmt.Errorf("unauthorized attempt to connect to an address which isn't in an allowed network (%s)", addr)
 }
 
-// Blacklist is an implementation of the AddrCheck interface which verifies that
+// Denylist is an implementation of the AddrCheck interface which verifies that
 // addresses don't belong to one of the IP networks it contains.
-type Blacklist []*net.IPNet
+type Denylist []*net.IPNet
 
 // Check satisfies the AddrCheck interface.
-func (ipNetList Blacklist) Check(addr net.Addr) error {
+func (ipNetList Denylist) Check(addr net.Addr) error {
 	ip := IPAddressOf(addr)
 
 	for _, ipNet := range ipNetList {
 		if ipNet.Contains(ip) {
-			return fmt.Errorf("unauthorized attempt to connect to an address is a blacklisted network (%s)", addr)
+			return fmt.Errorf("unauthorized attempt to connect to an address in a denied network (%s)", addr)
 		}
 	}
 

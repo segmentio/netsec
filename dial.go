@@ -88,12 +88,12 @@ func (d *RestrictedDialer) lookupIPAddr(ctx context.Context, name string) ([]net
 // RestrictedDial constructs a dial function which validates the address that it
 // establishes connections to.
 //
-// A typical use case for this function is to pass checks that either whitelists
-// or blacklists IP networks, to prevent access to private networks for example:
+// A typical use case for this function is to pass checks that either allowlists
+// or denylists IP networks, to prevent access to private networks for example:
 //
 //	transport := http.DefaultTransport.(*http.Transport)
 //	transport.DialContext = netsec.RestrictedDial(transport.DialContext,
-//		netsec.Blacklist(netset.PrivateIPAddresses),
+//		netsec.Denylist(netset.PrivateIPAddresses),
 //	)
 //
 // The implementation protects the program from DNS rebinding attacks because it
