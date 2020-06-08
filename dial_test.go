@@ -46,7 +46,7 @@ func TestRestrictedDial(t *testing.T) {
 
 var restrictedDial = RestrictedDial(
 	(&net.Dialer{}).DialContext,
-	Blacklist(PrivateIPNetworks),
+	Denylist(PrivateIPNetworks),
 )
 
 func testRestrictedDialPass(ctx context.Context, address string) func(*testing.T) {

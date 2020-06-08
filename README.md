@@ -17,8 +17,8 @@ configured dynamically (like a webhook for example).
 
 The `netsec` package helps protect against malicious use of those kinds of
 applications by providing a decorator for the typical dial functions used to
-establish network connections, which can be configured to whitelist or blacklist
-certain IP network ranges.
+establish network connections, which can be configured to allow or deny certain
+IP network ranges.
 
 Here is an example of how a program can leverage the `netsec` package to prevent
 HTTP requests from going to private network addresses:
@@ -34,7 +34,7 @@ func init() {
     // Modifies the dial function used by the default http transport to deny
     // requests that would reach private IP addresses.
     t.DialContext = netsec.RestrictedDial(t.DialContext,
-        netsec.Blacklist(netsec.PrivateIPNetworks),
+        netsec.Denylist(netsec.PrivateIPNetworks),
     )
 }
 
