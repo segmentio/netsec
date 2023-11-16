@@ -1,4 +1,8 @@
 # netsec [![CircleCI](https://circleci.com/gh/segmentio/netsec.svg?style=shield&circle-token=586dc5f2f8f249b7f85b0bc22fe18067a27e0a1f)](https://circleci.com/gh/segmentio/netsec) [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/netsec)](https://goreportcard.com/report/github.com/segmentio/netsec) [![GoDoc](https://godoc.org/github.com/segmentio/netsec?status.svg)](https://godoc.org/github.com/segmentio/netsec)
+
+> **Note**  
+> Segment has paused maintenance on this project, but may return it to an active status in the future. Issues and pull requests from external contributors are not being considered, although internal contributions may appear from time to time. The project remains available under its open source license for anyone to use.
+
 Home of code related to security of network systems.
 
 ## Motivation
